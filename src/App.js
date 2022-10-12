@@ -1,4 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useContext } from 'react'
+import AuthContext from './store/authContext'
 import './App.css'
 
 import Header from './components/Header'
@@ -8,14 +10,17 @@ import Form from './components/Form'
 import Profile from './components/Profile'
 
 const App = () => {
+
+  const authCtx = useContext(AuthContext)
+
   return (
     <div className='app'>
       <Header/>
       <Routes>
         <Route path='/' element={<Home/>}/>
-        <Route path='/auth' element={<Auth/>}/>
-        <Route path='/form' element={<Form/>}/>
-        <Route path='/profile' element={<Profile/>}/>
+        <Route path='/auth' element={!authCtx.token ? <Auth/> : <Navigate to='/'/>}/>
+        <Route path='/form' element={authCtx.token ? <Form/> : <Navigate to='/'/>}/>
+        <Route path='/profile' element={authCtx.token ? <Profile/> : <Navigate to='/'/>}/>
         <Route path='*' element={<Navigate to='/'/>}/>
       </Routes>
     </div>
