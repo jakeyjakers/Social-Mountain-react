@@ -8,6 +8,8 @@ const Auth = () => {
    const [username, setUsername] = useState('')
    const [password, setPassword] = useState('')
    const [register, setRegister] = useState(true)
+   const [message, setMessage] = useState('')
+   const [display, setDisplay] = useState('none')
 
    const authCtx = useContext(AuthContext)
 
@@ -43,6 +45,7 @@ const Auth = () => {
    const submitHandler = e => {
        e.preventDefault()
        
+       setDisplay('none')
 
        const body = {
         username,
@@ -55,10 +58,14 @@ const Auth = () => {
             .post(`${SOCIALMTN_API}/register`, body)
             .then((response) => {
                 console.log( `AFTER AUTH`, response.data)
-                authCtx.login(response.data.token, response.data.exp, response.data.userId)
+                authCtx.login(response.data.token, response.data.userId, response.data.exp)
                 console.log(response.data.token, response.data.exp, response.data.userId)
             }).catch((error) => {
                 console.log(error)
+                setMessage(error.response.data)
+                setDisplay('block')
+                setPassword('')
+                setUsername('')
             })
 
        } else {
@@ -66,11 +73,15 @@ const Auth = () => {
         axios.post(`${SOCIALMTN_API}/login`, body)
                 .then((response) => {
                     console.log(response.data)
-                    authCtx.login(response.data.token, response.data.exp, response.data.userId)
+                    authCtx.login(response.data.token, response.data.userId, response.data.exp)
                     console.log(response.data.token, response.data.exp, response.data.userId)
 
                 }).catch((error) => {
                     console.log(error)
+                    setMessage(error.response.data)
+                setDisplay('block')
+                setPassword('')
+                setUsername('')
                 })
        }
  
@@ -81,7 +92,7 @@ const Auth = () => {
     //    console.log(register)
        setPassword('')
        setUsername('')
-       setRegister(!register)
+       
    }
  
    return (
@@ -100,12 +111,16 @@ const Auth = () => {
                onChange={event => setPassword(event.target.value)}
                value={password}
                    className='form-input'/>
+
                <button className='form-btn'>
 
                    {register ? 'Sign Up' : 'Login'}
                </button>
            </form>
-           <button  className='form-btn'>Need to {register ? 'Login' : 'Sign Up'}?</button>
+           <p style={{display: display}} className='auth-msg'>{message}</p>
+           <button className='form-btn' onClick={() => setRegister(!register)}>
+                Need to {register ? 'Login' : 'Sign Up'}?
+            </button>
        </main>
    )
 }
